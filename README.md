@@ -1,10 +1,10 @@
-#Social Media Twin-Chat Application
+# Social Media Twin-Chat Application
 
 This project aims to create a modern front-end social media application for an existing social media company. This project targets a new niche audience of twin families. The project is based on the API documentation provided by Noroff and includes various features such as user registration, login, profile management, post creation, comment creation, and more.
 
-##User Stories
+## User Stories
 
-###The following user stories have been identified for this project:
+### The following user stories have been identified for this project:
 
     A user with a stud.noroff.no email may register
     A registered user may login
@@ -21,9 +21,9 @@ This project aims to create a modern front-end social media application for an e
     A registered user may react to any Post with an emoji
     A registered user may follow and unfollow another Profile
 
-##Technical Restrictions
+## Technical Restrictions
 
-###The following technical restrictions have been set by the company CTO:
+### The following technical restrictions have been set by the company CTO:
 
     Must use an approved JavaScript Framework (React >16).
     Must use an approved CSS Framework (Bootstrap >5, Tailwind >3, MUI >5, Styled Components, CSS Modules) This project uses MUI.
@@ -34,25 +34,26 @@ This project aims to create a modern front-end social media application for an e
     Must use an approved Planning Application (Trello, GitHub Projects)
     This project using Trello.
 
-###Requirements
+### Requirements
 
     All admin functionality is managed by an existing application. This project only covers the front-end application for the API.
 
-##API
+## API
 
 The API used for this project can be found under Social EndPoints in the Noroff API documentation.
 Resources
 
 [Noroff documentation](https://noroff-api-docs.netlify.app/ "Noroff API")
 
-##Approved Resources
+## Approved Resources
 
 The following libraries and services have been approved for use in this project:
-###JavaScript Frameworks
+
+### JavaScript Frameworks
 
     React (>16)
 
-###CSS Frameworks
+### CSS Frameworks
 
     Bootstrap (>5)
     Tailwind (>3)
@@ -60,25 +61,23 @@ The following libraries and services have been approved for use in this project:
     Styled Components
     CSS Modules
 
-###Hosting Services
+### Hosting Services
 
     GitHub Pages
     Netlify (this project has used Netlify)
 
-###Design Applications
+### Design Applications
 
     Adobe XD  (this project has used Adobe XD and Figma)
     Figma
     Sketch
 
-###Planning Applications
+### Planning Applications
 
     Trello  (this project has used Trello)
     GitHub Projects
 
-##Delivery
-
-###The following links are required for delivery:
+### The following links are required for delivery:
 
     A Gantt chart for project timing
     A design prototype
@@ -87,9 +86,9 @@ The following libraries and services have been approved for use in this project:
     A repository link
     A hosted application demo link
 
-##Special Instructions
+## Special Instructions
 
-###To set up and run the project locally, follow these steps:
+### To set up and run the project locally, follow these steps:
 
     Clone the repository to your local machine.
     Navigate to the project directory and run "npm install" to install dependencies.
