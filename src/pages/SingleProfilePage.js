@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useParams } from "react-router-dom";
 import { BASE_URL, PROFILE_URL } from "../constants/api";
@@ -22,8 +22,12 @@ export default function SingleProfilePage() {
   const { accessToken } = auth;
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const [refetch, setRefetch] = useState(false);
   const { profileName } = useParams();
+
+  const handleFollowUnfollow = useCallback(() => {
+    setRefetch((prevRefetch) => !prevRefetch);
+  }, []);
 
   useEffect(() => {
     const options = {
@@ -33,22 +37,21 @@ export default function SingleProfilePage() {
       },
     };
     const loadProfile = async () => {
-      fetch(`${url}${profileName}`, options)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`Error ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          setProfile(data);
-          setLoading(false);
-        })
-        .catch((error) => console.log(error.message));
+      setLoading(true);
+      try {
+        const response = await fetch(`${url}${profileName}`, options);
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}`);
+        }
+        const data = await response.json();
+        setProfile(data);
+        setLoading(false);
+      } catch (error) {
+        console.log(error.message);
+      }
     };
     loadProfile();
-  }, [profileName]);
-
+  }, [profileName, refetch, accessToken]);
   return (
     <Container>
       <BackButton />
@@ -117,7 +120,10 @@ export default function SingleProfilePage() {
                     member(s).
                   </Typography>
                   <Box sx={{ marginTop: "20px" }}>
-                    <FollowUnfollow profileName={profileName} />
+                    <FollowUnfollow
+                      profileName={profileName}
+                      handleFollowUnfollow={handleFollowUnfollow}
+                    />
                   </Box>
                 </>
               )}

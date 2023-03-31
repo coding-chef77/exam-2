@@ -17,7 +17,7 @@ const schema = yup.object().shape({
 export default function UpdateProfilePage() {
   const { auth } = useContext(AuthContext);
   const { accessToken } = auth;
-  const [error, setError] = useState("");
+  const [setError] = useState("");
 
   const history = useNavigate();
 

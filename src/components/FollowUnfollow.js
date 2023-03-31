@@ -11,8 +11,9 @@ const url = BASE_URL + PROFILE_URL;
 export default function FollowUnfollow({ profileName }) {
   const { auth } = useContext(AuthContext);
   const { accessToken } = auth;
+  const [isFollowing, setIsFollowing] = useState(false);
 
-  const follow = () => {
+  const handleFollow = () => {
     fetch(`${url}/${profileName}/follow`, {
       method: "PUT",
       headers: {
@@ -26,16 +27,12 @@ export default function FollowUnfollow({ profileName }) {
         if (!response.ok) {
           throw new Error(`Error ${response.status}`);
         }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Received data", data);
-        window.location.reload();
+        setIsFollowing(true);
       })
       .catch((error) => console.error(error));
   };
 
-  const unFollow = () => {
+  const handleUnfollow = () => {
     fetch(`${url}/${profileName}/unfollow`, {
       method: "PUT",
       headers: {
@@ -47,40 +44,49 @@ export default function FollowUnfollow({ profileName }) {
         if (!response.ok) {
           throw new Error(`Error ${response.status}`);
         }
-
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Received data", data);
-        window.location.reload();
+        setIsFollowing(false);
       })
       .catch((error) => console.error(error));
   };
+
+  useEffect(() => {
+    // Check if the user is currently following the profile when the component mounts
+    fetch(`${url}/${profileName}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setIsFollowing(data.isFollowing);
+      })
+      .catch((error) => console.error(error));
+  }, []);
 
   return (
     <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" } }}>
       <Button
         variant="contained"
         size="medium"
-        onClick={follow}
+        onClick={isFollowing ? handleUnfollow : handleFollow}
         sx={{
           marginRight: { xs: 0, sm: "20px" },
           marginBottom: { xs: "10px", sm: 0 },
           width: { xs: "100%", sm: "auto" },
         }}
       >
-        <PersonAddOutlinedIcon /> Follow
-      </Button>
-      <Button
-        variant="contained"
-        size="medium"
-        onClick={unFollow}
-        sx={{
-          width: { xs: "100%", sm: "auto" },
-          marginLeft: { sm: "20px" },
-        }}
-      >
-        <PersonAddDisabledOutlinedIcon /> Unfollow
+        {isFollowing ? (
+          <PersonAddDisabledOutlinedIcon />
+        ) : (
+          <PersonAddOutlinedIcon />
+        )}{" "}
+        {isFollowing ? "Unfollow" : "Follow"}
       </Button>
     </Box>
   );
