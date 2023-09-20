@@ -12,7 +12,7 @@ export default function ProfileAvatar() {
 
   useEffect(() => {
     setName(auth.name);
-  }, []);
+  }, [auth.name, setName]);
 
   const url = BASE_URL + PROFILE_URL + `/${name}`;
 
@@ -32,7 +32,7 @@ export default function ProfileAvatar() {
 
   useEffect(() => {
     fetchAvatar();
-  }, []);
+  });
 
   return <Avatar alt="profile avatar" src={profileAvatar} />;
 }

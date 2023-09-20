@@ -42,7 +42,7 @@ export default function PostsPage() {
     } catch (e) {
       console.log(e.message);
     }
-  }, [auth]);
+  }, [accessToken, auth]);
 
   return (
     <Container maxWidth="lg">

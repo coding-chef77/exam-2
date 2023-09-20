@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
 import { Avatar, Box, Card, CardContent, Typography } from "@mui/material";
 import Header from "../components/Header";
-import { useTheme } from "@mui/material/styles";
+// import { useTheme } from "@mui/material/styles";
 
 export default function PostsList({ posts }) {
-  const theme = useTheme();
+  // const theme = useTheme();
 
   return (
     <>
@@ -71,7 +71,7 @@ export default function PostsList({ posts }) {
                 {post.media ? (
                   <img
                     src={post.media}
-                    alt="image from post"
+                    alt={post.title}
                     style={{ maxWidth: "100%" }}
                   />
                 ) : null}
