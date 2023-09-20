@@ -17,61 +17,60 @@ export default function PostsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      if (!auth) {
-        throw new Error("No auth token found in localStorage");
+    const fetchPosts = async () => {
+      try {
+        if (!auth) {
+          throw new Error("No auth token found in localStorage");
+        }
+        const options = {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        };
+        const response = await fetch(url, options);
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}`);
+        }
+        const data = await response.json();
+        setPosts(data);
+        setLoading(false);
+      } catch (e) {
+        console.log(e.message);
       }
-      const options = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      };
-      fetch(url, options)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`Error ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          setPosts(data);
-          setLoading(false);
-        })
-        .catch((error) => console.log(error.message));
-    } catch (e) {
-      console.log(e.message);
-    }
-  }, [auth]);
+    };
+
+    fetchPosts();
+  }, [accessToken]);
 
   return (
     <Container maxWidth="lg">
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: "20px",
+        }}
+      >
+        <Link to="/newPost">
+          <CommonButton variant="contained" sx={{ margin: "10px" }}>
+            Create a post!
+          </CommonButton>
+        </Link>
+      </Box>
       {loading ? (
         <CircularProgress />
       ) : (
         <Box
           sx={{
             display: "flex",
-            justifyContent: "center",
-            marginTop: "20px",
+            flexDirection: "column",
+            alignItems: "center",
           }}
         >
-          <Link to="/newPost">
-            <CommonButton variant="contained" sx={{ margin: "10px" }}>
-              Create a post!
-            </CommonButton>
-          </Link>
+          <PostsList posts={posts} />
         </Box>
       )}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <PostsList posts={posts} />
-      </Box>
     </Container>
   );
 }

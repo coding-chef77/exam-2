@@ -13,7 +13,7 @@ export default function PostsList({ posts }) {
           <Link
             key={post.id}
             to={`/posts/${post.id}`}
-            style={{ textDecoration: "none", color: "inherit" }}
+            sx={{ textDecoration: "none", color: "inherit" }}
           >
             <Card
               sx={{
@@ -22,10 +22,7 @@ export default function PostsList({ posts }) {
                   xs: "column",
                   md: "row",
                 },
-                alignItems: {
-                  xs: "flex-start",
-                  md: "flex-start",
-                },
+                alignItems: "flex-start",
                 gap: {
                   xs: 0,
                   md: "40px",
@@ -72,7 +69,7 @@ export default function PostsList({ posts }) {
                   <img
                     src={post.media}
                     alt="image from post"
-                    style={{ maxWidth: "100%" }}
+                    sx={{ maxWidth: "100%" }}
                   />
                 ) : null}
               </CardContent>

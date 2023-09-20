@@ -1,6 +1,5 @@
 import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
-import NotFoundPage from "./NotFoundPage";
 import CircularProgress from "@mui/material/CircularProgress";
 import { BASE_URL, POSTS_URL } from "../constants/api";
 import Header from "../components/Header";
@@ -48,7 +47,7 @@ export default function SinglePostPage() {
         .catch((error) => console.log(error.message));
     };
     loadPost();
-  }, [postId]);
+  }, [accessToken, postId]);
 
   return (
     <Container>
