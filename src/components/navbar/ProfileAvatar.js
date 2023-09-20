@@ -10,10 +10,6 @@ export default function ProfileAvatar() {
   const { auth } = useContext(AuthContext);
   const { accessToken } = auth;
 
-  useEffect(() => {
-    setName(auth.name);
-  }, []);
-
   const url = BASE_URL + PROFILE_URL + `/${name}`;
 
   const options = {
@@ -24,15 +20,23 @@ export default function ProfileAvatar() {
   };
 
   const fetchAvatar = async () => {
-    const response = await fetch(url, options);
-    const data = await response.json();
-
-    setProfileAvatar(data.avatar);
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        throw new Error("Failed to fetch avatar");
+      }
+      const data = await response.json();
+      setProfileAvatar(data.avatar);
+    } catch (error) {
+      console.error("Error fetching avatar:", error);
+      // Handle the error appropriately here, e.g., show a message to the user.
+    }
   };
 
   useEffect(() => {
+    setName(auth.name);
     fetchAvatar();
-  }, []);
+  }, [name, accessToken]); // Added dependencies
 
-  return <Avatar alt="profile avatar" src={profileAvatar} />;
+  return <Avatar alt={`Avatar for ${name}`} src={profileAvatar} />;
 }
