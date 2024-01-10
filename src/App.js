@@ -1,4 +1,3 @@
-import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Container from "@mui/material/Container";
 import Navbar from "./components/navbar/NavBar";
