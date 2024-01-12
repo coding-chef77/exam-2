@@ -3,7 +3,9 @@ import { Box, Card, Avatar, Typography } from "@mui/material";
 export default function CommentsList({ comments }) {
   return (
     <>
-      <h3>Comments:</h3>
+      <Typography variant="h4" sx={{ marginTop: 2, marginBottom: 2 }}>
+        Comments:
+      </Typography>
       <Box>
         {comments.map((comment) => (
           <Box
@@ -14,7 +16,7 @@ export default function CommentsList({ comments }) {
               alignItems: "flex-start",
               gap: {
                 xs: "10px",
-                md: "40px",
+                md: "20px",
               },
             }}
           >

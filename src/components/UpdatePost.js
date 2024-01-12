@@ -1,26 +1,45 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { BASE_URL, POSTS_URL } from "../constants/api";
-import { AuthContext } from "../context/AuthContext";
 import { TextField, Typography, Button, Box } from "@mui/material";
-
-const url = BASE_URL + POSTS_URL;
+import { AuthContext } from "../context/AuthContext";
+import { BASE_URL, POSTS_URL } from "../constants/api";
 
 const schema = yup.object().shape({
   title: yup.string().required().min(3, "Title must be at least 3 characters."),
-  body: yup
-    .string()
-    .required()
-    .min(3, "Message must be minnimum 3 characters."),
+  body: yup.string().required().min(3, "Message must be minimum 3 characters."),
   media: yup.string().url().optional(),
 });
 
-export default function UpdatePost() {
+const updatePostApi = async (postId, data, accessToken) => {
+  const url = `${
+    BASE_URL + POSTS_URL
+  }/${postId}?_author=true&_comments=true&_reactions=true`;
+  const options = {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(data),
+  };
+
+  try {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error(error.message);
+    throw error;
+  }
+};
+
+export default function UpdatePost({ post, onPostUpdate }) {
   const { auth } = useContext(AuthContext);
-  const { accessToken } = auth;
   const [error, setError] = useState("");
   const { postId } = useParams();
 
@@ -28,36 +47,28 @@ export default function UpdatePost() {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm({
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data) => {
-    const options = {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(data),
-    };
-
-    fetch(
-      `${url}/${postId}?_author=true&_comments=true&_reactions=true`,
-      options
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        window.location.reload();
-        return data;
-      })
-      .catch((error) => setError(error.message));
+  const onSubmit = async (formData) => {
+    try {
+      const updatedPost = await updatePostApi(
+        postId,
+        formData,
+        auth.accessToken
+      );
+      onPostUpdate(updatedPost);
+      reset(); // Reset the form fields after successful update
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", marginTop: "20px" }}>
-      <Typography variant="h5">Update Post:</Typography>
-      {error && <p>{error}</p>}
+      <Typography variant="h4">Update Post:</Typography>
       <form onSubmit={handleSubmit(onSubmit)}>
         <TextField
           style={{ width: "300px", margin: "5px 0" }}

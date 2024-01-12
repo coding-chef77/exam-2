@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import React, { useContext, useState } from "react";
 import { BASE_URL, POSTS_URL } from "../constants/api";
 import { AuthContext } from "../context/AuthContext";
 import { Box, TextField, Typography, Button } from "@mui/material";
@@ -15,51 +15,49 @@ const schema = yup.object().shape({
     .min(4, "Comment is too short"),
 });
 
-export default function AddCommentForm({ articleName }) {
+export default function AddCommentForm({ articleName, onNewComment }) {
   const { auth } = useContext(AuthContext);
-  const { accessToken } = auth;
-  const [comments, setComments] = useState([]);
+  const [submitError, setSubmitError] = useState("");
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data) => {
-    const requestBody = {
-      body: data.body,
-    };
+  const onSubmit = async (data) => {
+    const requestBody = { body: data.body };
     const options = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${auth.accessToken}`,
       },
       body: JSON.stringify(requestBody),
     };
 
-    fetch(`${url}/${articleName}/comment`, options)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to submit comment");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setComments([...comments, data]);
-        window.location.reload();
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    try {
+      const response = await fetch(`${url}/${articleName}/comment`, options);
+      if (!response.ok) {
+        throw new Error("Failed to submit comment");
+      }
+      const newComment = await response.json();
+      onNewComment(newComment); // Pass new comment back to the parent component
+      reset(); // Clear the form after successful submission
+    } catch (error) {
+      console.error(error);
+      setSubmitError("An error occurred while submitting the comment.");
+    }
   };
+
   return (
     <>
       <Box sx={{ display: "flex", flexDirection: "column", marginTop: "20px" }}>
-        <Typography variant="h5">Add a Comment:</Typography>
+        <Typography variant="h4">Add a Comment:</Typography>
+        {submitError && <Typography color="error">{submitError}</Typography>}
         <form onSubmit={handleSubmit(onSubmit)}>
           <TextField
             style={{ maxWidth: "250px", margin: "5px 0" }}
@@ -77,11 +75,6 @@ export default function AddCommentForm({ articleName }) {
             </Button>
           </Box>
         </form>
-      </Box>
-      <Box>
-        {comments.map((comment) => (
-          <Box key={comment.id}>{comment.body}</Box>
-        ))}
       </Box>
     </>
   );
