@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth, AuthContext } from "../../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 import {
   AppBar,
   Box,
@@ -16,7 +16,7 @@ import logo from "./logo/logo.png";
 import AvatarImage from "./ProfileAvatar";
 
 export default function NavBar() {
-  const { auth, setAuth } = useAuth(AuthContext);
+  const { auth, setAuth } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -25,127 +25,89 @@ export default function NavBar() {
     navigate("/");
   };
 
-  const settings = [
-    { name: "Profile", link: "/myprofile" },
-    { name: "Logout", link: "" },
-  ];
+  const settings = auth
+    ? [
+        { name: "Profile", link: "/myprofile" },
+        { name: "Logout", action: handleLogout },
+      ]
+    : [];
 
   const [anchorElUser, setAnchorElUser] = useState(null);
 
-  useEffect(() => {
-    setAnchorElUser(null);
-  }, [auth]);
+  const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
+  const handleCloseUserMenu = () => setAnchorElUser(null);
 
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
+  const renderMenuItems = () =>
+    settings.map((setting) => (
+      <MenuItem
+        key={setting.name}
+        onClick={setting.action || handleCloseUserMenu}
+      >
+        <Link
+          to={setting.link || "#"}
+          style={{ textDecoration: "none", color: "#333" }}
+        >
+          <Typography textAlign="center">{setting.name}</Typography>
+        </Link>
+      </MenuItem>
+    ));
 
   return (
-    <AppBar position="static" style={{ backgroundColor: "hsl(20, 21%, 75%)" }}>
+    <AppBar position="static" sx={{ backgroundColor: "hsl(20, 21%, 75%)" }}>
       <Container maxWidth="lg">
         <Toolbar disableGutters>
-          <a href={auth ? "/posts" : "/"}>
-            <img src={logo} sx={{}} height="55px" alt="Logo" />
-          </a>
+          <Link to={auth ? "/posts" : "/"} style={{ marginRight: 2 }}>
+            <img src={logo} height="55px" alt="Logo" />
+          </Link>
+          {/* Title for different screen sizes */}
           <Typography
             variant="h2"
-            noWrap
-            component="a"
-            href={auth ? "/posts" : "/"}
-            sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              flexGrow: 1,
-              letterSpacing: ".3rem",
-              color: "background.dark",
-              textDecoration: "none",
-              justifyContent: "center",
-            }}
+            component={Link}
+            to={auth ? "/posts" : "/"}
+            sx={{ ...commonTitleStyles, display: { xs: "none", md: "flex" } }}
           >
             Life with Twins
           </Typography>
           <Typography
             variant="h6"
-            noWrap
-            component="a"
-            href={auth ? "/posts" : "/"}
-            sx={{
-              mr: 2,
-              display: { xs: "flex", md: "none" },
-              flexGrow: 1,
-              letterSpacing: ".3rem",
-              color: "background.dark",
-              textDecoration: "none",
-              justifyContent: "center",
-            }}
+            component={Link}
+            to={auth ? "/posts" : "/"}
+            sx={{ ...commonTitleStyles, display: { xs: "flex", md: "none" } }}
           >
             Life with Twins
           </Typography>
 
-          <Box sx={{ flexGrow: -1 }}>
-            {auth ? (
-              <>
-                <Tooltip title="Open settings">
-                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <AvatarImage />
-                  </IconButton>
-                </Tooltip>
-                <Menu
-                  sx={{
-                    mt: "45px",
-                  }}
-                  id="menu-appbar"
-                  anchorEl={anchorElUser}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  open={Boolean(anchorElUser)}
-                  onClose={handleCloseUserMenu}
-                >
-                  {settings.map((setting) => (
-                    <MenuItem
-                      key={setting.name}
-                      onClick={
-                        setting.name === "Logout"
-                          ? handleLogout
-                          : handleCloseUserMenu
-                      }
-                      sx={{
-                        backgroundColor: "#fff",
-                        "&:hover": {
-                          backgroundColor: "background.main",
-                        },
-                      }}
-                    >
-                      <Link to={setting.link}>
-                        <Typography
-                          textAlign="center"
-                          sx={{
-                            color: "#333",
-                            padding: "4px 8px",
-                          }}
-                        >
-                          {setting.name}
-                        </Typography>
-                      </Link>
-                    </MenuItem>
-                  ))}
-                </Menu>
-              </>
-            ) : null}
-          </Box>
+          {auth && (
+            <Box sx={{ flexGrow: -1 }}>
+              <Tooltip title="Open settings">
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <AvatarImage />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                sx={{ mt: "45px" }}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                keepMounted
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+              >
+                {renderMenuItems()}
+              </Menu>
+            </Box>
+          )}
         </Toolbar>
       </Container>
     </AppBar>
   );
 }
+
+const commonTitleStyles = {
+  flexGrow: 1,
+  letterSpacing: ".3rem",
+  color: "background.dark",
+  textDecoration: "none",
+  justifyContent: "center",
+};

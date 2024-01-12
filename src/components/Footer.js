@@ -1,5 +1,4 @@
 import { Box, Typography } from "@mui/material";
-import React from "react";
 
 export default function Footer() {
   return (
@@ -16,10 +15,12 @@ export default function Footer() {
         padding: "10px 0",
         textAlign: "center",
       }}
+      aria-label="Footer"
     >
       <Typography variant="subtitle2">
         Twin Chat Copyright © {new Date().getFullYear()}
       </Typography>
+      {/* Optional: Add links or other info here */}
     </Box>
   );
 }

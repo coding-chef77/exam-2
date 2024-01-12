@@ -35,7 +35,7 @@ export default function CreatePostPage() {
   const { auth } = useContext(AuthContext);
   const { accessToken } = auth;
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
 
@@ -48,10 +48,11 @@ export default function CreatePostPage() {
   });
 
   useEffect(() => {
-    setLoading(false);
+    setIsSubmitting(false);
   }, []);
 
   const onSubmit = (data) => {
+    setIsSubmitting(true);
     const options = {
       method: "POST",
       headers: {
@@ -67,7 +68,7 @@ export default function CreatePostPage() {
       })
       .then((data) => {
         navigate("/posts");
-        setLoading(false);
+        setIsSubmitting(false);
       })
       .catch((error) => setError(error.message));
   };
@@ -75,74 +76,59 @@ export default function CreatePostPage() {
   return (
     <Container>
       <BackButton />
-      {loading ? (
-        <CircularProgress />
-      ) : (
-        <Box
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Header title={"Create a Post"} />
-          <Typography
-            variant="body1"
-            style={{ width: "300px", marginBottom: "5px" }}
+      <Box
+        sx={{
+          marginTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <Header title="Create a Post" />
+        <Typography variant="body1" sx={{ width: 300, mb: 2 }}>
+          What's on your mind? Share ideas or challenges with other members.
+        </Typography>
+        {error && <Alert severity="error">{error}</Alert>}
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              width: 300,
+              gap: 2,
+            }}
           >
-            What's on your mind? Share ideas or challenges with other members
-          </Typography>
-
-          {error && (
-            <Alert variant="outlined" severity="error">
-              <strong>{error}</strong>
-            </Alert>
-          )}
-
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
-              <TextField
-                style={{ width: "300px", margin: "5px 0" }}
-                label="Title"
-                type="text"
-                id="title"
-                {...register("title")}
-                error={!!errors.title}
-                helperText={errors.title?.message}
-              />
-
-              <TextField
-                style={{ width: "300px", margin: "5px 0" }}
-                label="Message"
-                multiline
-                rows={4}
-                id="body"
-                {...register("body")}
-                error={!!errors.body}
-                helperText={errors.body?.message}
-              />
-
-              <TextField
-                style={{ width: "300px", margin: "5p 0" }}
-                label="Image URL"
-                type="text"
-                id="media"
-                {...register("media")}
-                error={!!errors.media}
-                helperText={errors.media?.message}
-              />
-            </Box>
+            <TextField
+              label="Title"
+              {...register("title")}
+              error={!!errors.title}
+              helperText={errors.title?.message}
+            />
+            <TextField
+              label="Message"
+              multiline
+              rows={4}
+              {...register("body")}
+              error={!!errors.body}
+              helperText={errors.body?.message}
+            />
+            <TextField
+              label="Image URL"
+              {...register("media")}
+              error={!!errors.media}
+              helperText={errors.media?.message}
+            />
             <Button
               type="submit"
               variant="contained"
-              style={{ margin: "10px 0" }}
+              sx={{ mt: 2 }}
+              disabled={isSubmitting}
             >
-              Create Post
+              {isSubmitting ? <CircularProgress size={24} /> : "Create Post"}
             </Button>
-          </form>
-        </Box>
-      )}
+          </Box>
+        </form>
+      </Box>
     </Container>
   );
 }

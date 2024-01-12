@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -69,6 +69,11 @@ export default function UpdatePost({ post, onPostUpdate }) {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", marginTop: "20px" }}>
       <Typography variant="h4">Update Post:</Typography>
+      {error && (
+        <Typography color="error" sx={{ mb: 2 }}>
+          Error: {error}
+        </Typography>
+      )}
       <form onSubmit={handleSubmit(onSubmit)}>
         <TextField
           style={{ width: "300px", margin: "5px 0" }}

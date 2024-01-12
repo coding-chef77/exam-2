@@ -1,10 +1,10 @@
 import PostsList from "../components/PostsList";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { BASE_URL, POSTS_URL } from "../constants/api";
 import { AuthContext } from "../context/AuthContext";
 import CommonButton from "../common/commonButton/CommonButton";
-import { Container, Box } from "@mui/material";
+import { Container, Box, Alert } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
 
 const url =
@@ -12,66 +12,66 @@ const url =
 
 export default function PostsPage() {
   const { auth } = useContext(AuthContext);
-  const { accessToken } = auth;
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
+  const fetchPosts = useCallback(async () => {
     try {
-      if (!auth) {
-        throw new Error("No auth token found in localStorage");
-      }
       const options = {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${auth.accessToken}`,
         },
       };
-      fetch(url, options)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`Error ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          setPosts(data);
-          setLoading(false);
-        })
-        .catch((error) => console.log(error.message));
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}`);
+      }
+      const data = await response.json();
+      setPosts(data);
     } catch (e) {
-      console.log(e.message);
+      setError(e.message);
+    } finally {
+      setLoading(false);
     }
-  }, [accessToken, auth]);
+  }, [auth.accessToken]);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
 
   return (
     <Container maxWidth="lg">
       {loading ? (
         <CircularProgress />
       ) : (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "20px",
-          }}
-        >
-          <Link to="/newPost">
-            <CommonButton variant="contained" sx={{ margin: "10px" }}>
-              Create a post!
-            </CommonButton>
-          </Link>
-        </Box>
+        <>
+          {error && <Alert severity="error">{error}</Alert>}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "20px",
+            }}
+          >
+            <Link to="/newPost">
+              <CommonButton variant="contained" sx={{ margin: "10px" }}>
+                Create a Post
+              </CommonButton>
+            </Link>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <PostsList posts={posts} />
+          </Box>
+        </>
       )}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <PostsList posts={posts} />
-      </Box>
     </Container>
   );
 }

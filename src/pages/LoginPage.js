@@ -14,6 +14,7 @@ import {
   Avatar,
   Alert,
   Button,
+  CircularProgress,
 } from "@mui/material";
 
 const schema = yup.object().shape({
@@ -25,6 +26,7 @@ const url = BASE_URL + LOGIN_URL;
 
 export default function LoginPage() {
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { setAuth } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -37,40 +39,36 @@ export default function LoginPage() {
   });
 
   const logIn = async (data) => {
+    setIsLoading(true);
     try {
       const response = await fetch(url, {
         method: "POST",
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-        }),
+        body: JSON.stringify(data),
         headers: {
           "Content-Type": "application/json",
         },
       });
-      if (response.status === 200) {
+
+      if (response.ok) {
         const json = await response.json();
-        const auth = {
+        setAuth({
           name: json.name,
           email: json.email,
           avatar: json.avatar,
           accessToken: json.accessToken,
-        };
-
-        setAuth(auth);
+        });
         navigate("/posts");
-      } else if (response.status === 401) {
-        setError("Incorrect email or password");
       } else {
-        setError("Please check your email and password");
+        setError("Login failed. Please check your credentials.");
       }
     } catch (e) {
-      setError("An error occurred, please try again");
+      setError("An error occurred, please try again.");
     }
+    setIsLoading(false);
   };
 
   return (
-    <Container component="main" maxWidth="lg">
+    <Container component="main" maxWidth="sm">
       <Box
         sx={{
           marginTop: 8,
@@ -82,50 +80,42 @@ export default function LoginPage() {
         <Avatar sx={{ m: 1, bgcolor: "background.dark" }}>
           <LockOutlinedIcon />
         </Avatar>
-        <Header title={"Log In"} />
+        <Header title="Log In" />
 
-        {error && (
-          <Alert variant="filled" severity="error">
-            <strong>{error}</strong>
-          </Alert>
-        )}
+        {error && <Alert severity="error">{error}</Alert>}
 
-        <form onSubmit={handleSubmit(logIn)}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-            }}
+        <Box component="form" onSubmit={handleSubmit(logIn)} sx={{ mt: 1 }}>
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Your email address"
+            {...register("email")}
+            error={!!errors.email}
+            helperText={errors.email?.message}
+          />
+          <TextField
+            margin="normal"
+            fullWidth
+            type="password"
+            label="Your password"
+            {...register("password")}
+            error={!!errors.password}
+            helperText={errors.password?.message}
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            disabled={isLoading}
           >
-            <TextField
-              margin="normal"
-              label="Your email address"
-              {...register("email")}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-            />
-            <TextField
-              margin="normal"
-              type="password"
-              label="Your password"
-              {...register("password")}
-              error={!!errors.password}
-              helperText={errors.password?.message}
-            />
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "baseline",
-            }}
-          >
-            <Button variant="contained" sx={{ mt: 3, mb: 2 }} type="submit">
-              Log In
-            </Button>
-          </Box>
-        </form>
+            {isLoading ? <CircularProgress size={24} /> : "Log In"}
+          </Button>
+        </Box>
 
-        <Link to="/register">Not registered? Do it here!</Link>
+        <Link to="/register" style={{ marginTop: 15 }}>
+          Not registered? Do it here!
+        </Link>
       </Box>
     </Container>
   );

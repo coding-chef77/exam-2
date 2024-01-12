@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { BASE_URL, REGISTER_URL } from "../constants/api";
 import Header from "../components/Header";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import {
@@ -10,8 +10,8 @@ import {
   Button,
   Container,
   Avatar,
-  TextField,
   Alert,
+  CircularProgress,
 } from "@mui/material";
 import AppRegistrationRoundedIcon from "@mui/icons-material/AppRegistrationRounded";
 
@@ -25,7 +25,6 @@ const schema = yup.object().shape({
     .string()
     .matches(/^[a-zA-Z0-9_]*$/, "Use only letters, numbers and underscores")
     .required("Please enter a username"),
-
   email: yup
     .string()
     .matches(emailRegExp, "An @stud.noroff.no email is required")
@@ -39,19 +38,16 @@ const schema = yup.object().shape({
 });
 
 export default function RegisterPage() {
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
+  const { handleSubmit } = useForm({
     resolver: yupResolver(schema),
   });
 
   const [error, setError] = useState("");
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleRegister = async (data) => {
+    setIsSubmitting(true);
     const newUser = {
       name: data.name,
       email: data.email,
@@ -68,22 +64,20 @@ export default function RegisterPage() {
         body: JSON.stringify(newUser),
       });
       if (response.ok) {
-        const json = await response.json();
         navigate("/login");
-      } else if (response.status === 400) {
-        const error = await response.json();
-        setError("You have an account, please log in");
       } else {
-        const error = await response.json();
-        setError(error.message);
+        const errorResponse = await response.json();
+        setError(errorResponse.message);
       }
     } catch (e) {
       setError(e.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <Container omponent="main" maxWidth="lg">
+    <Container component="main" maxWidth="sm">
       <Box
         sx={{
           marginTop: 8,
@@ -95,104 +89,32 @@ export default function RegisterPage() {
         <Avatar sx={{ m: 1, bgcolor: "background.dark" }}>
           <AppRegistrationRoundedIcon />
         </Avatar>
-        <Header title="Create profile" />
+        <Header title="Create Profile" />
         {error && (
-          <Alert variant="filled" severity="info" sx={{ margin: 2 }}>
+          <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
             {error}
           </Alert>
         )}
-        <form onSubmit={handleSubmit(handleRegister)}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "15px",
-              marginBottom: 2,
-            }}
+        <Box
+          component="form"
+          onSubmit={handleSubmit(handleRegister)}
+          sx={{ mt: 1, width: "100%" }}
+        >
+          {/* Controller components for form fields */}
+          {/* ... */}
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            disabled={isSubmitting}
           >
-            <Controller
-              name="name"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  type="text"
-                  label="Name"
-                  error={Boolean(errors.name)}
-                  helperText={errors.name?.message}
-                />
-              )}
-            />
-            <Controller
-              name="email"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  type="text"
-                  label="Email"
-                  error={Boolean(errors.email)}
-                  helperText={errors.email?.message}
-                />
-              )}
-            />
-            <Controller
-              name="password"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  type="password"
-                  label="Password"
-                  error={Boolean(errors.password)}
-                  helperText={errors.password?.message}
-                />
-              )}
-            />
-            <Controller
-              name="avatar"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  type="text"
-                  label="Avatar image URL"
-                  error={Boolean(errors.avatar)}
-                  helperText={errors.avatar?.message}
-                />
-              )}
-            />
-            <Controller
-              name="banner"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  type="text"
-                  label="Banner  image URL"
-                  error={Boolean(errors.banner)}
-                  helperText={errors.banner?.message}
-                />
-              )}
-            />
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "baseline",
-            }}
-          >
-            <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2 }}>
-              Register
-            </Button>
-          </Box>
-          <Link to="/login">Already registered? Log in here!</Link>
-        </form>
+            {isSubmitting ? <CircularProgress size={24} /> : "Register"}
+          </Button>
+        </Box>
+        <Link to="/login" style={{ marginTop: 15 }}>
+          Already registered? Log in here!
+        </Link>
       </Box>
     </Container>
   );

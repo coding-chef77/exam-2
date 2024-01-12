@@ -1,38 +1,33 @@
-import { useState, useEffect, useContext } from "react";
-import { BASE_URL, PROFILE_URL } from "../../constants/api";
-import useLocalStorage from "../../hooks/useLocalStorage";
+import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import Avatar from "@mui/material/Avatar";
+import { BASE_URL, PROFILE_URL } from "../../constants/api";
 
 export default function ProfileAvatar() {
-  const [name, setName] = useLocalStorage("name");
-  const [profileAvatar, setProfileAvatar] = useState("");
   const { auth } = useContext(AuthContext);
-  const { accessToken } = auth;
+  const [profileAvatar, setProfileAvatar] = useState("");
 
   useEffect(() => {
-    setName(auth.name);
-  }, [auth.name, setName]);
+    const fetchAvatar = async () => {
+      const url = `${BASE_URL}${PROFILE_URL}/${auth.name}`;
+      const options = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${auth.accessToken}`,
+        },
+      };
 
-  const url = BASE_URL + PROFILE_URL + `/${name}`;
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        setProfileAvatar(data.avatar);
+      } catch (error) {
+        console.error("Error fetching profile avatar:", error);
+      }
+    };
 
-  const options = {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
-  };
+    if (auth) fetchAvatar();
+  }, [auth]);
 
-  const fetchAvatar = async () => {
-    const response = await fetch(url, options);
-    const data = await response.json();
-
-    setProfileAvatar(data.avatar);
-  };
-
-  useEffect(() => {
-    fetchAvatar();
-  });
-
-  return <Avatar alt="profile avatar" src={profileAvatar} />;
+  return <Avatar alt="Profile Avatar" src={profileAvatar} />;
 }
