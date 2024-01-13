@@ -1,4 +1,3 @@
-import React from "react";
 import { useState, useEffect, useContext } from "react";
 import { BASE_URL, PROFILE_URL } from "../constants/api";
 import { AuthContext } from "../context/AuthContext";

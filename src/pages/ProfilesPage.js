@@ -3,66 +3,41 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { useState, useEffect, useContext } from "react";
 import { BASE_URL, PROFILE_URL } from "../constants/api";
 import { AuthContext } from "../context/AuthContext";
-import { Container, Box } from "@mui/material";
+import { Container, Alert } from "@mui/material";
 import { BackButton } from "../common/BackButton";
 
 const url = BASE_URL + PROFILE_URL;
 
 export default function ProfilesPage() {
   const { auth } = useContext(AuthContext);
-  const { accessToken } = auth;
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    try {
-      if (!auth) {
-        throw new Error("No auth token found in localStorage");
+    const fetchProfiles = async () => {
+      try {
+        const options = {
+          headers: { Authorization: `Bearer ${auth.accessToken}` },
+        };
+        const response = await fetch(url, options);
+        if (!response.ok) throw new Error("Failed to fetch profiles");
+        setProfiles(await response.json());
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
-      const options = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      };
+    };
 
-      fetch(url, options)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`Error ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          setProfiles(data);
-          setLoading(false);
-        })
-        .catch((error) => console.log(error.message));
-    } catch (e) {
-      console.log(e.message);
-    }
-  }, [auth]);
+    fetchProfiles();
+  }, [auth.accessToken]);
 
   return (
     <Container>
       <BackButton />
-      <Box
-        maxWidth="lg"
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Box>
-          {loading ? (
-            <CircularProgress />
-          ) : (
-            <ProfilesList profiles={profiles} />
-          )}
-        </Box>
-      </Box>
+      {error && <Alert severity="error">{error}</Alert>}
+      {loading ? <CircularProgress /> : <ProfilesList profiles={profiles} />}
     </Container>
   );
 }

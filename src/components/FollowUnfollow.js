@@ -50,7 +50,6 @@ export default function FollowUnfollow({ profileName }) {
   };
 
   useEffect(() => {
-    // Check if the user is currently following the profile when the component mounts
     fetch(`${url}/${profileName}`, {
       method: "GET",
       headers: {
