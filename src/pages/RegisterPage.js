@@ -12,6 +12,7 @@ import {
   Avatar,
   Alert,
   CircularProgress,
+  TextField,
 } from "@mui/material";
 import AppRegistrationRoundedIcon from "@mui/icons-material/AppRegistrationRounded";
 
@@ -33,12 +34,16 @@ const schema = yup.object().shape({
     .string()
     .min(8, "Password minimum 8 characters")
     .required("Please enter a password"),
-  avatar: yup.string(),
-  banner: yup.string(),
+  avatar: yup.string().url("Please enter a valid URL for the avatar"),
+  banner: yup.string().url("Please enter a valid URL for the banner"),
 });
 
 export default function RegisterPage() {
-  const { handleSubmit } = useForm({
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
     resolver: yupResolver(schema),
   });
 
@@ -100,8 +105,47 @@ export default function RegisterPage() {
           onSubmit={handleSubmit(handleRegister)}
           sx={{ mt: 1, width: "100%" }}
         >
-          {/* Controller components for form fields */}
-          {/* ... */}
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Username"
+            {...register("name")}
+            error={!!errors.name}
+            helperText={errors.name?.message}
+          />
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Email Address"
+            {...register("email")}
+            error={!!errors.email}
+            helperText={errors.email?.message}
+          />
+          <TextField
+            margin="normal"
+            fullWidth
+            type="password"
+            label="Password"
+            {...register("password")}
+            error={!!errors.password}
+            helperText={errors.password?.message}
+          />
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Avatar URL"
+            {...register("avatar")}
+            error={!!errors.avatar}
+            helperText={errors.avatar?.message}
+          />
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Banner URL"
+            {...register("banner")}
+            error={!!errors.banner}
+            helperText={errors.banner?.message}
+          />
           <Button
             type="submit"
             fullWidth
