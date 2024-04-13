@@ -9,10 +9,12 @@ export default function LandingPage() {
 
   return (
     <Container>
-      <Box paddingTop={5} paddingBottom={5}>
+      <Box paddingY={5}>
         <Paper elevation={3} sx={{ maxWidth: 500, margin: "auto", padding: 2 }}>
-          <Header heading="Welcome to Twin Chat" />
-          <Header subheading="The go-to place to share and find info about life with twins" />
+          <Header
+            heading="Welcome to Twin Chat"
+            subheading="Join the twin community"
+          />
 
           <Typography variant="body1" paragraph>
             Twin Chat is by twin parents for twin parents. A platform to share
@@ -21,9 +23,6 @@ export default function LandingPage() {
             found out you’re expecting twins, recently welcomed twins to the
             world, have older twins or even are a twin yourself, this is a
             global community for us.
-          </Typography>
-          <Typography variant="subtitle1">
-            Simply register to become a part of the community.
           </Typography>
 
           <Grid container spacing={2} justifyContent="center" paddingTop={4}>
